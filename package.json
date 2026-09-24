@@ -1,0 +1,19 @@
+{
+  "name": "consultorio-pos",
+  "version": "1.0.0",
+  "description": "Sistema de Punto de Venta y Gestión para Consultorios Médicos usando Electron y SQLite",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "tsc && electron .",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "sqlite3": "^5.1.7"
+  },
+  "devDependencies": {
+    "@types/node": "^26.2.0",
+    "@types/sqlite3": "^3.1.11",
+    "electron": "^28.2.0",
+    "typescript": "^5.3.3"
+  }
+}
