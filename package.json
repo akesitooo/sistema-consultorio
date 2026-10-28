@@ -5,7 +5,8 @@
   "main": "src/main.js",
   "scripts": {
     "start": "tsc && electron .",
-    "build": "tsc"
+    "build": "tsc",
+    "test": "npm run build && node --test tests/*.test.cjs"
   },
   "dependencies": {
     "sqlite3": "^5.1.7"
