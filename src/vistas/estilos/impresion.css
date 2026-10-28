@@ -1,0 +1,14 @@
+/* Impresión independiente del diseño de pantalla. */
+@media print {
+  body { background: white; color: black; }
+  body * { visibility: hidden; }
+  #zona-impresion, #zona-impresion * { visibility: visible; }
+  .saltar-contenido, .modal { display: none !important; }
+  .ticket { position: absolute; left: 0; top: 0; width: 75mm; max-width: 75mm; margin: 0 auto; padding: 0; font-family: 'Courier New', Courier, monospace; font-size: 12px; color: black; line-height: 1.2; text-align: left; }
+  .ticket * { font-family: inherit; }
+  .ticket h2 { font-size: 16px; text-align: center; margin: 5px 0; font-weight: bold; }
+  .ticket h3 { font-size: 14px; text-align: center; margin: 5px 0; }
+  .ticket p { margin: 3px 0; line-height: 1.2; }
+  .ticket #t_estudio_lista { margin-left: 5px !important; font-size: 11px; }
+  .reporte-a4 { position: absolute; left: 0; top: 0; width: 100%; max-width: 210mm; margin: 0 auto; padding: 20px; font-family: Arial, sans-serif; font-size: 14px; color: black; }
+}

@@ -2,237 +2,78 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Sistema de Cobro y Cierre</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Consultorio POS · Caja</title>
     <link rel="stylesheet" href="./estilos.css">
 </head>
 <body>
+    <a class="saltar-contenido" href="#contenido">Ir al contenido</a>
     <div class="contenedor-app">
-        <!-- MENÚ LATERAL -->
         <aside class="barra-lateral">
             <div class="marca">
-                <img src="./akesitooo.png" alt="Logo" class="logo">
-                <h2 class="leyenda">Sistema Médico by akesitooo</h2>
+                <img src="./akesitooo.png" alt="Logo original de akesitooo: figura roja con un ojo y manos" class="logo">
+                <span class="leyenda">by akesitooo</span>
             </div>
-            <nav class="menu">
-                <button class="btn-menu activo" id="btn-cobro" onclick="cambiarVista('vista-cobro', 'btn-cobro')">💰 Punto de Venta</button>
-                <button class="btn-menu" id="btn-cortes" onclick="cambiarVista('vista-cortes', 'btn-cortes'); cargarCorteDiario();">📊 Corte Diario</button>
+            <nav class="menu" aria-label="Navegación principal">
+                <button type="button" class="btn-menu activo" id="btn-cobro" aria-current="page" onclick="cambiarVista('vista-cobro', 'btn-cobro')"><span aria-hidden="true">01</span> Caja <span class="flecha" aria-hidden="true">→</span></button>
+                <button type="button" class="btn-menu" id="btn-cortes" onclick="cambiarVista('vista-cortes', 'btn-cortes'); cargarCorteDiario();"><span aria-hidden="true">02</span> Corte diario</button>
             </nav>
+            <p class="pie-menu">Consultas y estudios<br><span>Tu espacio de trabajo.</span></p>
         </aside>
-
-        <!-- ÁREA PRINCIPAL -->
-        <main class="contenido-principal">
-            
-            <!-- PANTALLA DE COBRO Y PACIENTES UNIFICADA -->
-            <section id="vista-cobro" class="vista activa">
-                <div class="encabezado-vista" style="display: flex; justify-content: space-between; align-items: center;">
-                    <h1>Punto de Venta / Caja</h1>
-                    <!-- BOTÓN DE RETIRO RESTAURADO -->
-                    <button class="btn-peligro" onclick="abrirModalEgreso()">💸 Retirar Efectivo</button>
-                </div>
-                
-                <div class="tarjeta" style="max-width: 900px;">
-                    <form id="formulario-cobro" class="formulario" onsubmit="procesarCobro(event)">
-                        
-                        <!-- SECCIÓN 1: DATOS DEL PACIENTE -->
-                        <div style="background: #f0f8ff; padding: 15px; border-radius: 8px; border: 1px solid #cce5ff;">
-                            <h3 style="margin-top: 0; color: #0078d4;">Datos del Paciente</h3>
-                            <div class="grupo-fila" style="margin-bottom: 15px;">
-                                <div class="grupo-input" style="flex: 2;">
-                                    <label>Nombre del Paciente (Escribe para buscar o crear nuevo) *</label>
-                                    <input type="text" id="c_paciente_nombre" list="lista-pacientes" placeholder="Nombre completo..." onchange="buscarPacienteAuto()" required autocomplete="off">
-                                    <datalist id="lista-pacientes"></datalist>
-                                    <input type="hidden" id="c_paciente_id_real">
-                                </div>
+        <div class="espacio-trabajo">
+            <header class="barra-superior"><strong>CONSULTORIO POS</strong><span class="estado-local"><span aria-hidden="true">●</span> Almacenamiento local</span></header>
+            <main class="contenido-principal" id="contenido" tabindex="-1">
+                <section id="vista-cobro" class="vista activa" aria-labelledby="titulo-caja">
+                    <div class="encabezado-vista">
+                        <div><div class="titulo-con-etiqueta"><h1 id="titulo-caja">Caja</h1><span class="etiqueta">Nueva venta</span></div><p>Selecciona al paciente, agrega los servicios y cobra.</p></div>
+                        <button type="button" class="btn-secundario retiro" onclick="abrirModalEgreso()">Retirar efectivo ↗</button>
+                    </div>
+                    <form id="formulario-cobro" class="caja-layout" onsubmit="procesarCobro(event)">
+                        <fieldset class="ficha-paciente">
+                            <legend>Paciente</legend>
+                            <div class="paciente-campos">
+                                <div class="grupo-input nombre-paciente"><label for="c_paciente_nombre">Nombre completo <span class="requerido">*</span></label><input type="text" id="c_paciente_nombre" list="lista-pacientes" placeholder="Busca un paciente o escribe uno nuevo" onchange="buscarPacienteAuto()" required autocomplete="off"><datalist id="lista-pacientes"></datalist><input type="hidden" id="c_paciente_id_real"></div>
+                                <div class="grupo-input"><label for="c_paciente_edad">Edad *</label><input type="number" id="c_paciente_edad" required></div>
+                                <div class="grupo-input"><label for="c_paciente_sexo">Sexo *</label><select id="c_paciente_sexo" required><option value="">Selecciona…</option><option>Femenino</option><option>Masculino</option></select></div>
+                                <div class="grupo-input"><label for="c_paciente_tel">Teléfono *</label><input type="tel" id="c_paciente_tel" required autocomplete="tel"></div>
                             </div>
-                            <div class="grupo-fila">
-                                <div class="grupo-input">
-                                    <label>Edad *</label>
-                                    <input type="number" id="c_paciente_edad" required>
-                                </div>
-                                <div class="grupo-input">
-                                    <label>Sexo *</label>
-                                    <select id="c_paciente_sexo" required>
-                                        <option value="">Seleccione...</option>
-                                        <option value="Femenino">Femenino</option>
-                                        <option value="Masculino">Masculino</option>
-                                    </select>
-                                </div>
-                                <div class="grupo-input">
-                                    <label>Teléfono *</label>
-                                    <input type="tel" id="c_paciente_tel" required>
-                                </div>
-                            </div>
-                            <div class="grupo-fila" style="margin-top: 15px;">
-                                <div class="grupo-input" style="flex: 1;">
-                                    <label>Correo Electrónico (Opcional)</label>
-                                    <input type="email" id="c_paciente_email" placeholder="ejemplo@correo.com">
-                                </div>
-                                <div class="grupo-input" style="flex: 2;">
-                                    <label>Notas u Observaciones (Opcional)</label>
-                                    <input type="text" id="c_paciente_notas" placeholder="Historial, alergias...">
-                                </div>
-                            </div>
+                            <details class="datos-adicionales"><summary>Correo y observaciones <span>(opcional)</span></summary><div class="grupo-fila"><div class="grupo-input"><label for="c_paciente_email">Correo electrónico</label><input type="email" id="c_paciente_email" placeholder="ejemplo@correo.com" autocomplete="email"></div><div class="grupo-input"><label for="c_paciente_notas">Observaciones del paciente</label><input type="text" id="c_paciente_notas" placeholder="Notas del registro"></div></div></details>
+                        </fieldset>
+                        <div class="zona-servicios">
+                            <section class="catalogo" aria-labelledby="titulo-servicios">
+                                <div class="cabecera-seccion"><div><h2 id="titulo-servicios">Servicios y estudios</h2><p>Busca por nombre y agrega lo que necesita el paciente.</p></div><span class="indice" aria-hidden="true">/ 01</span></div>
+                                <div class="busqueda-servicios"><label class="solo-lectores" for="c_estudio_buscador">Buscar consulta o estudio</label><input type="search" id="c_estudio_buscador" list="lista-estudios" placeholder="Buscar consulta o estudio…" autocomplete="off" aria-controls="catalogo-filas"><datalist id="lista-estudios"></datalist><button type="button" class="btn-secundario" onclick="agregarEstudioCarrito()">Agregar</button></div>
+                                <div class="tabla-contenedor"><table class="tabla-catalogo"><caption class="solo-lectores">Catálogo de servicios disponibles</caption><thead><tr><th scope="col">Código</th><th scope="col">Servicio</th><th scope="col" class="numero">Precio</th><th scope="col"><span class="solo-lectores">Acción</span></th></tr></thead><tbody id="catalogo-filas"></tbody></table></div>
+                                <p id="catalogo-vacio" class="vacio" hidden>No encontramos ese servicio. Prueba con otra palabra.</p>
+                                <p class="ayuda-catalogo">Puedes agregar más de un servicio al mismo ticket.</p>
+                            </section>
+                            <div class="datos-venta grupo-fila"><div class="grupo-input"><label for="c_doctor">Médico solicitante *</label><input type="text" id="c_doctor" required placeholder="Nombre del médico"></div><div class="grupo-input"><label for="c_vendedor">Recepcionista <span>(opcional)</span></label><input type="text" id="c_vendedor" placeholder="Quién atiende esta venta"></div></div>
+                            <p id="aviso-interfaz" class="aviso-interfaz" role="status" aria-live="polite" aria-atomic="true"></p>
                         </div>
-
-                        <div class="grupo-fila" style="margin-top: 20px;">
-                            <div class="grupo-input">
-                                <label>Doctor Solicitante *</label>
-                                <input type="text" id="c_doctor" required>
-                            </div>
-                            <div class="grupo-input">
-                                <label>Recepcionista (Opcional)</label>
-                                <input type="text" id="c_vendedor" placeholder="Nombre...">
-                            </div>
-                        </div>
-
-                        <!-- SECCIÓN 2: CARRITO DE ESTUDIOS -->
-                        <div style="background: #f8fbfd; border: 1px solid #d1d8dd; margin-top: 20px; padding: 15px; border-radius: 8px;">
-                            <label style="color: #2c3e50; font-size: 16px; display: block; margin-bottom: 10px;"><strong>Estudios a Realizar</strong></label>
-                            
-                            <div style="display: flex; gap: 15px;">
-                                <div class="grupo-input" style="flex: 1;">
-                                    <input type="text" id="c_estudio_buscador" list="lista-estudios" placeholder="Buscar estudio (Ej: Radiografía, Ultrasonido...)" autocomplete="off">
-                                    <!-- LISTA DE ESTUDIOS INCRUSTADA PARA QUE NO FALLE -->
-                                <datalist id="lista-estudios">
-    <option value="CONSULTA GENERAL"></option>
-    <option value="CONSULTA CON ESPECIALISTA"></option>
-    <option value="RADIOGRAFÍA DE TÓRAX"></option>
-    <option value="ULTRASONIDO ABDOMINAL"></option>
-    <option value="EXAMEN GENERAL DE ORINA"></option>
-    <option value="QUÍMICA SANGUÍNEA (6 ELEMENTOS)"></option>
-    <option value="TOMOGRAFÍA SIMPLE"></option>
-    <option value="ELECTROCARDIOGRAMA"></option>
-    <option value="CERTIFICADO MÉDICO"></option>
-    <option value="PERFIL DE LÍPIDOS"></option>
-</datalist>
-                                </div>
-                                <button type="button" class="btn-primario" style="margin-top: 0; background-color: #8e44ad;" onclick="agregarEstudioCarrito()">+ Añadir</button>
-                            </div>
-
-                            <ul id="lista-carrito" class="carrito-estudios">
-                                <li style="color: #7f8c8d; font-style: italic; font-size: 14px; text-align: center;">El ticket está vacío. Busca y añade estudios para ver el total.</li>
-                            </ul>
-                        </div>
-
-                        <!-- SECCIÓN 3: TOTALES Y COBRO -->
-                        <div class="grupo-fila" style="align-items: center; justify-content: flex-end; margin-top: 15px;">
-                            <label style="font-size: 18px; color: #2c3e50; margin-right: 15px;">Subtotal:</label>
-                            <input type="number" id="c_subtotal" readonly value="0" style="font-size: 20px; font-weight: bold; width: 150px; text-align: right;">
-                        </div>
-
-                        <hr style="border: 0; border-top: 1px solid #eee; margin: 15px 0;">
-
-                        <div class="grupo-fila">
-                            <div class="grupo-input" style="flex: 0.5;">
-                                <label>Tipo Desc.</label>
-                                <select id="c_tipo_desc" onchange="calcularVenta()">
-                                    <option value="Monto">$</option>
-                                    <option value="Porcentaje">%</option>
-                                </select>
-                            </div>
-                            <div class="grupo-input">
-                                <label>Descuento (Opcional)</label>
-                                <input type="number" id="c_descuento" value="0" min="0" onkeyup="calcularVenta()">
-                            </div>
-                            <div class="grupo-input">
-                                <label>Total a Cobrar ($)</label>
-                                <input type="number" id="c_total_cobrar" readonly value="0" style="font-weight: bold; color: #d35400; font-size: 18px; text-align: right;">
-                            </div>
-                        </div>
-
-                        <div class="grupo-fila">
-                            <div class="grupo-input">
-                                <label>Método de Pago *</label>
-                                <select id="c_metodo" required onchange="cambiarMetodoPago()">
-                                    <option value="Efectivo">Efectivo</option>
-                                    <option value="Tarjeta">Tarjeta</option>
-                                    <option value="Transferencia">Transferencia</option>
-                                </select>
-                            </div>
-                            <div class="grupo-input" id="caja_referencia" style="display: none;">
-                                <label>Ref. Pago (Opcional)</label>
-                                <input type="text" id="c_referencia" placeholder="Folio...">
-                            </div>
-                            <div class="grupo-input">
-                                <label>Recibido ($) *</label>
-                                <input type="number" id="c_recibido" required min="0" onkeyup="calcularVenta()" style="text-align: right;">
-                            </div>
-                            <div class="grupo-input">
-                                <label>Cambio ($)</label>
-                                <input type="number" id="c_cambio" readonly value="0" style="font-weight: bold; color: #27ae60; font-size: 18px; text-align: right;">
-                            </div>
-                        </div>
-                        
-                        <button type="submit" class="btn-primario" style="background-color: #27ae60; font-size: 18px; padding: 15px; width: 100%;">💰 Procesar Cobro e Imprimir Ticket</button>
+                        <aside class="resumen-ticket" aria-labelledby="titulo-ticket">
+                            <div class="cabecera-ticket"><h2 id="titulo-ticket">Venta actual</h2><span id="cantidad-servicios">0 servicios</span></div>
+                            <ul id="lista-carrito" class="carrito-estudios" aria-label="Servicios en esta venta"><li class="carrito-vacio">Tu ticket está vacío. Agrega una consulta o estudio para comenzar.</li></ul>
+                            <div class="fila-importe"><label for="c_subtotal">Subtotal</label><div class="importe"><span aria-hidden="true">$</span><input type="number" id="c_subtotal" readonly value="0" tabindex="-1"></div></div>
+                            <details class="descuento"><summary>Aplicar descuento</summary><div class="grupo-fila"><div class="grupo-input"><label for="c_tipo_desc">Tipo</label><select id="c_tipo_desc" onchange="calcularVenta()"><option value="Monto">Pesos ($)</option><option value="Porcentaje">Porcentaje (%)</option></select></div><div class="grupo-input"><label for="c_descuento">Descuento</label><input type="number" id="c_descuento" value="0" min="0" step="0.01" oninput="calcularVenta()"></div></div></details>
+                            <div class="fila-importe total"><label for="c_total_cobrar">Total</label><div class="importe"><span aria-hidden="true">$</span><input type="number" id="c_total_cobrar" readonly value="0" tabindex="-1"></div></div>
+                            <div class="grupo-input"><label for="c_metodo">Método de pago *</label><select id="c_metodo" required onchange="cambiarMetodoPago()"><option>Efectivo</option><option>Tarjeta</option><option>Transferencia</option></select></div>
+                            <div class="grupo-input" id="caja_referencia" style="display: none;"><label for="c_referencia">Referencia del pago <span>(opcional)</span></label><input type="text" id="c_referencia" placeholder="Folio o referencia"></div>
+                            <div class="grupo-fila pago-campos"><div class="grupo-input"><label for="c_recibido">Recibido ($) *</label><input type="number" id="c_recibido" required min="0" step="0.01" oninput="calcularVenta()" placeholder="0.00"></div><div class="grupo-input"><label for="c_cambio">Cambio ($)</label><input type="number" id="c_cambio" readonly value="0" tabindex="-1"></div></div>
+                            <button type="submit" class="btn-primario btn-cobrar" id="boton-cobrar">Cobrar e imprimir <span aria-hidden="true">→</span></button><p class="nota-ticket">Se guarda la venta y se abre la impresión del ticket.</p>
+                        </aside>
                     </form>
-                </div>
-            </section>
-
-            <!-- PANTALLA DE CORTES RESTAURADA -->
-            <section id="vista-cortes" class="vista">
-                <div class="encabezado-vista" style="display: flex; justify-content: space-between; align-items: center;">
-                    <h1>Corte Diario</h1>
-                    <div style="display: flex; gap: 10px;">
-                        <input type="date" id="fecha_corte" onchange="cargarCorteDiario()" style="padding: 10px; border-radius: 8px; border: 1px solid #ccc;">
-                        <button class="btn-primario" style="margin: 0; background-color: #8e44ad;" onclick="mandarImprimir('corte')">📄 Guardar PDF / Imprimir</button>
-                    </div>
-                </div>
-                
-                <div class="grupo-fila" style="margin-bottom: 20px;">
-                    <div class="tarjeta" style="flex: 1; text-align: center; padding: 20px;">
-                        <h3 style="margin: 0; color: #7f8c8d;">Total Ingresos</h3>
-                        <h2 style="margin: 10px 0 0 0; color: #27ae60;" id="res_ingresos">$0.00</h2>
-                    </div>
-                    <div class="tarjeta" style="flex: 1; text-align: center; padding: 20px;">
-                        <h3 style="margin: 0; color: #7f8c8d;">Total Egresos</h3>
-                        <h2 style="margin: 10px 0 0 0; color: #c0392b;" id="res_egresos">$0.00</h2>
-                    </div>
-                    <div class="tarjeta" style="flex: 1; text-align: center; padding: 20px; background-color: #f0f8ff;">
-                        <h3 style="margin: 0; color: #2c3e50;">Efectivo en Caja</h3>
-                        <h2 style="margin: 10px 0 0 0; color: #0078d4;" id="res_caja">$0.00</h2>
-                    </div>
-                </div>
-
-                <div class="tarjeta">
-                    <h3 style="margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 10px;">Desglose de Ingresos por Método</h3>
-                    <p><strong>Efectivo:</strong> $<span id="res_efectivo">0.00</span></p>
-                    <p><strong>Tarjeta:</strong> $<span id="res_tarjeta">0.00</span></p>
-                    <p><strong>Transferencia:</strong> $<span id="res_transferencia">0.00</span></p>
-                    
-                    <h3 style="margin-top: 30px; border-bottom: 1px solid #eee; padding-bottom: 10px;">Salidas de Efectivo (Egresos)</h3>
-                    <div id="lista_egresos" style="font-size: 14px; color: #555;">No hay egresos registrados.</div>
-                    <h3 style="margin-top: 30px; border-bottom: 1px solid #eee; padding-bottom: 10px;">Detalle de Ventas (Tickets)</h3>
-    <div id="lista_ventas_corte" style="font-size: 14px; color: #555;">No hay ventas registradas hoy.</div>
-                </div>
-            </section>
-        </main>
-    </div>
-
-    <!-- MODALES Y TICKETS -->
-    <div id="modal-egreso" class="modal">
-        <div class="modal-contenido tarjeta">
-            <h2 style="margin-top: 0; color: #c0392b;">Salida de Efectivo</h2>
-            <form id="formulario-egreso" class="formulario" onsubmit="guardarEgreso(event)">
-                <div class="grupo-input">
-                    <label>Monto a retirar ($) *</label>
-                    <input type="number" id="e_monto" required min="1">
-                </div>
-                <div class="grupo-input">
-                    <label>Justificación / Motivo *</label>
-                    <textarea id="e_justificacion" rows="2" required placeholder="Ej: Compra de material..."></textarea>
-                </div>
-                <div class="grupo-input">
-                    <label>Persona que retira *</label>
-                    <input type="text" id="e_usuario" required>
-                </div>
-                <div class="grupo-fila" style="margin-top: 15px;">
-                    <button type="button" class="btn-menu" onclick="cerrarModalEgreso()" style="flex: 1; border: 1px solid #ccc; text-align: center;">Cancelar</button>
-                    <button type="submit" class="btn-peligro" style="flex: 1;">Imprimir Ticket</button>
-                </div>
-            </form>
+                </section>
+                <section id="vista-cortes" class="vista" aria-labelledby="titulo-corte">
+                    <div class="encabezado-vista"><div><div class="titulo-con-etiqueta"><h1 id="titulo-corte">Corte diario</h1><span class="etiqueta">Movimientos</span></div><p>Consulta los ingresos y retiros de la fecha seleccionada.</p></div><div class="acciones-corte"><div class="grupo-input"><label for="fecha_corte">Fecha del reporte</label><input type="date" id="fecha_corte" onchange="cargarCorteDiario()"></div><button type="button" class="btn-secundario" onclick="mandarImprimir('corte')">Imprimir / guardar PDF</button></div></div>
+                    <div class="resumen-corte"><div><h2>Total de ingresos</h2><strong id="res_ingresos">$0.00</strong></div><div><h2>Total de retiros</h2><strong id="res_egresos">$0.00</strong></div><div class="saldo"><h2>Efectivo del día</h2><strong id="res_caja">$0.00</strong></div></div>
+                    <section class="tarjeta detalle-corte"><h2>Ingresos por método</h2><dl class="metodos-corte"><div><dt>Efectivo</dt><dd>$<span id="res_efectivo">0.00</span></dd></div><div><dt>Tarjeta</dt><dd>$<span id="res_tarjeta">0.00</span></dd></div><div><dt>Transferencia</dt><dd>$<span id="res_transferencia">0.00</span></dd></div></dl><h2>Salidas de efectivo</h2><div id="lista_egresos">No hay retiros registrados para esta fecha.</div><h2>Detalle de ventas</h2><div id="lista_ventas_corte">No hay ventas registradas para esta fecha.</div></section>
+                </section>
+            </main>
         </div>
     </div>
-
+    <div id="modal-egreso" class="modal" role="dialog" aria-modal="true" aria-labelledby="titulo-egreso">
+        <div class="modal-contenido tarjeta"><span class="etiqueta">Movimiento de caja</span><h2 id="titulo-egreso">Retirar efectivo</h2><p>Registra el monto, el motivo y quién retira.</p><form id="formulario-egreso" class="formulario" onsubmit="guardarEgreso(event)"><div class="grupo-input"><label for="e_monto">Monto a retirar ($) *</label><input type="number" id="e_monto" required min="1" step="0.01"></div><div class="grupo-input"><label for="e_justificacion">Motivo *</label><textarea id="e_justificacion" rows="3" required placeholder="Ej. Compra de material"></textarea></div><div class="grupo-input"><label for="e_usuario">Persona que retira *</label><input type="text" id="e_usuario" required></div><div class="grupo-fila"><button type="button" class="btn-secundario" onclick="cerrarModalEgreso()">Cancelar</button><button type="submit" class="btn-peligro">Registrar e imprimir</button></div></form></div>
+    </div>
     <!-- ZONA DE IMPRESIÓN OCULTA -->
     <div id="zona-impresion" style="display: none;">
         <div id="ticket-venta" class="ticket">
@@ -302,8 +143,6 @@
             <div id="rep_lista_egresos" style="font-size: 14px;"></div>
         </div>
     </div>
-    <script>
-    require('./interfaz.js');
-</script>
+    <script>require('./interfaz.js');</script>
 </body>
 </html>

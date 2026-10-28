@@ -1,0 +1,44 @@
+:root {
+  color-scheme: light;
+  --papel: #f4f2e9;
+  --superficie: #fffefa;
+  --tinta: #202333;
+  --secundario: #595d6d;
+  --cobalto: #244de8;
+  --cobalto-suave: #edf0ff;
+  --amarillo: #efe897;
+  --borde: #c4c4ca;
+  --peligro: #a52c33;
+  --exito: #216442;
+  --radio: 4px;
+  --rapido: 160ms;
+  --normal: 200ms;
+  --curva: cubic-bezier(.2,.7,.2,1);
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--papel); color: var(--tinta); font: 14px/1.5 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+button, input, select, textarea { font: inherit; }
+button, summary { cursor: pointer; }
+button { touch-action: manipulation; }
+button, input, select, textarea { border-radius: var(--radio); }
+input, select, textarea { width: 100%; min-width: 0; min-height: 44px; padding: 9px 11px; border: 1px solid #8d909d; background: var(--superficie); color: var(--tinta); }
+input::placeholder, textarea::placeholder { color: #686d7b; opacity: 1; }
+input[readonly] { background: #eeeee9; }
+input[type='number'] { font-variant-numeric: tabular-nums; }
+input[type='number']::-webkit-inner-spin-button, input[type='number']::-webkit-outer-spin-button { appearance: none; margin: 0; }
+:where(button, input, select, textarea, summary, a):focus-visible { outline: 3px solid var(--cobalto); outline-offset: 3px; }
+button:disabled { cursor: wait; opacity: .65; }
+h1, h2, h3, p { margin-top: 0; }
+h1, .cabecera-seccion h2, .total label { font-family: Georgia, 'Times New Roman', serif; letter-spacing: -.045em; }
+h1 { margin: 0; font-size: clamp(36px, 4vw, 54px); line-height: 1.08; }
+h2 { font-size: 20px; line-height: 1.25; }
+label { font-weight: 600; font-size: 13px; }
+label span, summary span { font-weight: 400; color: var(--secundario); }
+fieldset { min-width: 0; margin: 0; }
+[hidden] { display: none !important; }
+.solo-lectores { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+.saltar-contenido { position: fixed; left: 16px; top: -100px; z-index: 2000; padding: 12px; background: white; color: var(--cobalto); }
+.saltar-contenido:focus { top: 12px; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}

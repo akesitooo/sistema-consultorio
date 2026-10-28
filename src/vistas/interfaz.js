@@ -3,6 +3,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const conexion_1 = require("../base_de_datos/conexion");
 const catalogo_1 = require("../modelos/catalogo");
+const presentacion_1 = require("./presentacion");
 let pacientesMemoria = [];
 let carritoEstudios = [];
 // ==========================================
@@ -22,12 +23,20 @@ function cambiarVista(idVista, idBoton) {
     document.querySelectorAll('.btn-menu').forEach(b => b.classList.remove('activo'));
     document.getElementById(idVista)?.classList.add('activa');
     document.getElementById(idBoton)?.classList.add('activo');
+    document.querySelectorAll('.btn-menu').forEach(b => b.removeAttribute('aria-current'));
+    document.getElementById(idBoton)?.setAttribute('aria-current', 'page');
+    const titulo = document.querySelector(`#${idVista} h1`);
+    if (titulo) {
+        titulo.tabIndex = -1;
+        titulo.focus({ preventScroll: true });
+    }
+    document.title = idVista === 'vista-cortes' ? 'Consultorio POS · Corte diario' : 'Consultorio POS · Caja';
 }
 function abrirModalEgreso() {
-    document.getElementById('modal-egreso').style.display = 'flex';
+    (0, presentacion_1.abrirPanelEgreso)();
 }
 function cerrarModalEgreso() {
-    document.getElementById('modal-egreso').style.display = 'none';
+    (0, presentacion_1.cerrarPanelEgreso)();
 }
 function mandarImprimir(tipoTicket) {
     const appPrincipal = document.querySelector('.contenedor-app');
@@ -108,45 +117,55 @@ function agregarEstudioCarrito() {
         input.value = '';
         renderizarCarrito();
         calcularVenta();
-        const lista = document.getElementById('lista-carrito');
-        if (lista) {
-            lista.style.border = '2px solid #27ae60';
-            setTimeout(() => { lista.style.border = ''; }, 500);
-        }
+        (0, presentacion_1.anunciar)(`${estudioEncontrado.nombre} agregado al ticket.`);
+        document.dispatchEvent(new Event('catalogo:restablecer'));
     }
     else {
         alert(`⚠️ Estudio no encontrado: "${nombreBuscado}"\nVerifica la lista desplegable.`);
     }
 }
 function eliminarDelCarrito(index) {
+    const eliminado = carritoEstudios[index];
     carritoEstudios.splice(index, 1);
     renderizarCarrito();
+    (0, presentacion_1.anunciar)(`${eliminado.nombre} eliminado del ticket.`);
+    const botones = document.querySelectorAll('.btn-eliminar-carrito');
+    (botones[Math.min(index, botones.length - 1)] || document.getElementById('c_estudio_buscador'))?.focus();
 }
 function renderizarCarrito() {
     const listaHTML = document.getElementById('lista-carrito');
     const subtotalInput = document.getElementById('c_subtotal');
-    if (carritoEstudios.length === 0) {
-        listaHTML.innerHTML = `<li style="color: #7f8c8d; font-style: italic; font-size: 14px; text-align: center;">📋 El ticket está vacío. Busca y añade estudios.</li>`;
+    const cantidad = carritoEstudios.length;
+    document.getElementById('cantidad-servicios').textContent = `${cantidad} ${cantidad === 1 ? 'servicio' : 'servicios'}`;
+    listaHTML.replaceChildren();
+    if (cantidad === 0) {
+        const vacio = document.createElement('li');
+        vacio.className = 'carrito-vacio';
+        vacio.textContent = 'Tu ticket está vacío. Agrega una consulta o estudio para comenzar.';
+        listaHTML.appendChild(vacio);
         subtotalInput.value = '0';
         calcularVenta();
         return;
     }
-    listaHTML.innerHTML = '';
     let sumaSubtotal = 0;
     carritoEstudios.forEach((est, index) => {
         sumaSubtotal += est.precio;
         const li = document.createElement('li');
-        li.style.cssText = 'display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; border-bottom: 1px solid #eee;';
-        li.innerHTML = `
-            <span style="font-weight: 500; flex: 1;">${est.nombre}</span>
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <strong style="color: #27ae60;">$${est.precio.toFixed(2)}</strong>
-                <button type="button" class="btn-eliminar-carrito" onclick="eliminarDelCarrito(${index})" 
-                    style="background: #e74c3c; color: white; border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer; font-weight: bold;">
-                    ✕
-                </button>
-            </div>
-        `;
+        const nombre = document.createElement('span');
+        nombre.className = 'nombre-servicio';
+        nombre.textContent = est.nombre;
+        const acciones = document.createElement('div');
+        acciones.className = 'acciones-renglon';
+        const precio = document.createElement('strong');
+        precio.textContent = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(est.precio);
+        const quitar = document.createElement('button');
+        quitar.type = 'button';
+        quitar.className = 'btn-eliminar-carrito';
+        quitar.textContent = 'Quitar';
+        quitar.setAttribute('aria-label', `Quitar ${est.nombre}`);
+        quitar.addEventListener('click', () => eliminarDelCarrito(index));
+        acciones.append(precio, quitar);
+        li.append(nombre, acciones);
         listaHTML.appendChild(li);
     });
     subtotalInput.value = sumaSubtotal.toFixed(2);
@@ -165,6 +184,9 @@ function calcularVenta() {
     document.getElementById('c_total_cobrar').value = totalConDescuento.toFixed(2);
     const cambio = Math.max(0, recibido - totalConDescuento);
     document.getElementById('c_cambio').value = cambio.toFixed(2);
+    const botonCobrar = document.getElementById('boton-cobrar');
+    if (botonCobrar)
+        botonCobrar.disabled = carritoEstudios.length === 0;
 }
 function cambiarMetodoPago() {
     const metodo = document.getElementById('c_metodo').value;
@@ -479,6 +501,7 @@ function ejecutarInsercionVenta(pacienteId, pacienteNombre) {
             renderizarCarrito();
             cambiarMetodoPago();
             cargarCorteDiario();
+            (0, presentacion_1.anunciar)('Venta guardada. Preparando la impresión del ticket.');
         });
     });
 }
@@ -502,6 +525,8 @@ window.procesarCobro = procesarCobro;
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
     inicializarListas();
+    (0, presentacion_1.iniciarCatalogo)(catalogo_1.catalogoEstudios, agregarEstudioCarrito);
+    (0, presentacion_1.iniciarPanelEgreso)();
     carritoEstudios = [];
     renderizarCarrito();
     const fechaInput = document.getElementById('fecha_corte');
