@@ -2,18 +2,7 @@
 // src/vistas/interfaz.ts
 Object.defineProperty(exports, "__esModule", { value: true });
 const conexion_1 = require("../base_de_datos/conexion");
-const catalogoEstudios = [
-    { id: 1, precio: 500, nombre: "CONSULTA GENERAL" },
-    { id: 2, precio: 800, nombre: "CONSULTA CON ESPECIALISTA" },
-    { id: 3, precio: 350, nombre: "RADIOGRAFÍA DE TÓRAX" },
-    { id: 4, precio: 1200, nombre: "ULTRASONIDO ABDOMINAL" },
-    { id: 5, precio: 250, nombre: "EXAMEN GENERAL DE ORINA" },
-    { id: 6, precio: 450, nombre: "QUÍMICA SANGUÍNEA (6 ELEMENTOS)" },
-    { id: 7, precio: 1500, nombre: "TOMOGRAFÍA SIMPLE" },
-    { id: 8, precio: 600, nombre: "ELECTROCARDIOGRAMA" },
-    { id: 9, precio: 200, nombre: "CERTIFICADO MÉDICO" },
-    { id: 10, precio: 850, nombre: "PERFIL DE LÍPIDOS" }
-];
+const catalogo_1 = require("../modelos/catalogo");
 let pacientesMemoria = [];
 let carritoEstudios = [];
 // ==========================================
@@ -103,9 +92,9 @@ function agregarEstudioCarrito() {
         alert("⚠️ Escribe o selecciona un estudio primero.");
         return;
     }
-    let estudioEncontrado = catalogoEstudios.find(e => e.nombre.toUpperCase() === nombreBuscado);
+    let estudioEncontrado = catalogo_1.catalogoEstudios.find(e => e.nombre.toUpperCase() === nombreBuscado);
     if (!estudioEncontrado) {
-        const posibles = catalogoEstudios.filter(e => e.nombre.toUpperCase().includes(nombreBuscado));
+        const posibles = catalogo_1.catalogoEstudios.filter(e => e.nombre.toUpperCase().includes(nombreBuscado));
         if (posibles.length === 1) {
             estudioEncontrado = posibles[0];
         }
@@ -237,7 +226,7 @@ function cargarCorteDiario() {
             const nombresEstudiosArreglo = [];
             idsStr.forEach((idDelEstudio) => {
                 const idLimpio = idDelEstudio.trim();
-                const objEstudio = catalogoEstudios.find(e => e.id.toString() === idLimpio);
+                const objEstudio = catalogo_1.catalogoEstudios.find(e => e.id.toString() === idLimpio);
                 const nombreDelEstudio = objEstudio ? objEstudio.nombre : 'Estudio Desconocido';
                 nombresEstudiosArreglo.push(nombreDelEstudio);
                 // Lo metemos al grupo para sumarlo
