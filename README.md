@@ -4,7 +4,7 @@ Prototipo de escritorio para cobrar consultas y estudios, registrar pacientes y 
 
 ## Estado actual
 
-La caja utiliza una identidad editorial cobalto: fondo papel, logo original, ficha de paciente, catálogo desplegable con búsqueda por nombre o código y resumen del ticket. El logo tiene fondo transparente. El panel de retiros incluye recorrido por teclado y las transiciones respetan la preferencia de reducir movimiento.
+La caja utiliza una identidad editorial cobalto: fondo papel, logo original, ficha de paciente, catálogo desplegable con búsqueda por nombre o código y resumen del ticket. Se utiliza el logo original con fondo blanco. El panel de retiros incluye recorrido por teclado y las transiciones respetan la preferencia de reducir movimiento.
 
 Actualmente funciona con una base local. Las sucursales conectadas, la sincronización sin internet, los usuarios autenticados y el panel de administración forman parte del trabajo pendiente; no están implementados en esta versión. Consulta [el alcance y la validación](docs/estado-del-proyecto.md).
 

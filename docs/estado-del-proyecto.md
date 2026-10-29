@@ -2,7 +2,7 @@
 
 ## Entrega de interfaz cobalto
 
-- Se conserva sin modificación el archivo original `src/vistas/akesitooo.png`. La pantalla usa una versión con fondo transparente guardada por separado en `src/vistas/akesitooo-transparente.png`.
+- Se conserva sin modificación el archivo original `src/vistas/akesitooo.png`. La pantalla vuelve a usar la imagen original con fondo blanco, por preferencia del usuario. La variante transparente queda guardada como recurso alternativo.
 - Caja organizada en ficha de paciente, catálogo y resumen. La navegación solo muestra destinos existentes: caja y corte diario.
 - Catálogo único para pantalla y reportes, conservando precios e identificadores existentes.
 - Catálogo desplegable con búsqueda sin acentos por nombre o código, precio visible y lista con altura acotada y desplazamiento. Selección por clic o flechas y Enter; Escape, Tab y clic fuera cierran la lista sin borrar la búsqueda.

@@ -1,7 +1,7 @@
 .contenedor-app { display: flex; min-height: 100vh; }
 .barra-lateral { width: 176px; flex-shrink: 0; background: var(--tinta); color: white; position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; }
 .marca { padding: 26px 22px; text-align: center; }
-.logo { display: block; width: 116px; max-width: 100%; height: auto; padding: 6px; margin: 0 auto 8px; background: transparent; border-radius: var(--radio); }
+.logo { display: block; width: 116px; max-width: 100%; height: auto; padding: 6px; margin: 0 auto 8px; background: white; border-radius: var(--radio); }
 .leyenda { font-size: 11px; letter-spacing: .08em; color: #c1c5d6; }
 .menu { display: flex; flex-direction: column; gap: 8px; padding: 18px 0; }
 .btn-menu { min-height: 56px; width: 100%; display: flex; align-items: center; gap: 12px; padding: 12px 18px; border: 0; border-radius: 0; background: transparent; color: #e1e3ee; text-align: left; transition: background-color var(--rapido); }
