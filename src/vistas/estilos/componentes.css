@@ -14,15 +14,6 @@
 .tarjeta { background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--radio); padding: 24px; }
 .numero { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .tabla-contenedor { overflow-x: auto; }
-.tabla-catalogo { border-collapse: collapse; width: 100%; font-size: 13px; }
-.tabla-catalogo th { text-align: left; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; background: #e9e9e5; }
-.tabla-catalogo th, .tabla-catalogo td { padding: 11px 10px; border-bottom: 1px solid var(--borde); }
-.tabla-catalogo th.numero, .tabla-catalogo td.numero { text-align: right; }
-.tabla-catalogo td:first-child { color: var(--secundario); font: 12px/1.5 monospace; }
-.tabla-catalogo tr { transition: background-color var(--rapido); }
-.tabla-catalogo tbody tr:hover, .tabla-catalogo tbody tr:focus-within { background: var(--cobalto-suave); }
-.agregar-servicio { width: 44px; height: 44px; background: var(--superficie); color: var(--cobalto); border: 1px solid var(--cobalto); font-size: 23px; }
-.agregar-servicio:hover { background: var(--cobalto); color: white; }
 .vacio, .carrito-vacio { padding: 22px 8px; color: var(--secundario); line-height: 1.6; }
 .carrito-estudios { list-style: none; padding: 0; margin: 0 0 16px; max-height: 240px; overflow-y: auto; }
 .carrito-estudios li:not(.carrito-vacio) { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 8px; padding: 12px 0; border-bottom: 1px solid var(--borde); animation: renglon-entra var(--rapido) var(--curva); }

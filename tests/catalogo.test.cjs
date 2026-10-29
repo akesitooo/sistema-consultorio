@@ -10,21 +10,28 @@ test('la búsqueda encuentra servicios aunque se omitan acentos o cambien mayús
 
 test('buscar un código distingue el servicio y una consulta desconocida queda vacía', () => {
     assert.deepEqual(filtrarServicios(catalogoEstudios, '10').map(s => s.id), [10]);
+    assert.deepEqual(filtrarServicios(catalogoEstudios, '003').map(s => s.id), [3]);
     assert.deepEqual(filtrarServicios(catalogoEstudios, 'servicio inexistente'), []);
     assert.equal(filtrarServicios(catalogoEstudios, '').length, catalogoEstudios.length);
 });
 
 // Adaptador de DOM mínimo: prueba eventos y foco, no sustituye revisión visual en Electron.
 class Elemento {
-    constructor() { this.children = []; this.listeners = {}; this.attributes = {}; this.style = {}; this.value = ''; }
+    constructor() {
+        this.children = []; this.listeners = {}; this.attributes = {}; this.style = {}; this.value = '';
+        const clases = new Set();
+        this.classList = { toggle(c, on) { if (on) clases.add(c); else clases.delete(c); }, contains(c) { return clases.has(c); } };
+    }
     appendChild(nodo) { this.children.push(nodo); return nodo; }
+    append(...nodos) { this.children.push(...nodos); }
     replaceChildren() { this.children = []; }
     setAttribute(nombre, valor) { this.attributes[nombre] = valor; }
     removeAttribute(nombre) { delete this.attributes[nombre]; }
     hasAttribute(nombre) { return nombre in this.attributes; }
     addEventListener(nombre, fn) { this.listeners[nombre] = fn; }
     focus() { global.document.activeElement = this; }
-    querySelector() { return this.children.flatMap(c => c.children).find(c => c.type === 'button'); }
+    scrollIntoView() { this.desplazado = true; }
+    contains(nodo) { return nodo === this || this.children.some(hijo => hijo.contains(nodo)); }
     querySelectorAll() { return this.children; }
 }
 function prepararDOM() {
@@ -33,42 +40,104 @@ function prepararDOM() {
         getElementById(id) { if (!nodos.has(id)) nodos.set(id, new Elemento()); return nodos.get(id); },
         createElement() { return new Elemento(); },
         querySelector() { return this.getElementById('app'); },
-        addEventListener() {},
+        listeners: {},
+        addEventListener(nombre, fn) { this.listeners[nombre] = fn; },
         body: new Elemento(),
         activeElement: new Elemento(),
     };
-    return id => document.getElementById(id);
+    const nodo = id => document.getElementById(id);
+    nodo('selector-servicios').append(nodo('c_estudio_buscador'), nodo('alternar-catalogo'), nodo('catalogo-panel'));
+    return nodo;
+}
+function tecla(nodo, key, extras = {}) {
+    let prevenido = false;
+    nodo('c_estudio_buscador').listeners.keydown({ key, preventDefault() { prevenido = true; }, ...extras });
+    return prevenido;
+}
+function buscar(nodo, valor) {
+    nodo('c_estudio_buscador').value = valor;
+    nodo('c_estudio_buscador').listeners.input();
 }
 
-test('al buscar se actualizan las filas y se muestra el estado sin coincidencias', () => {
-    const nodo = prepararDOM();
-    iniciarCatalogo(catalogoEstudios, () => {});
-    const buscador = nodo('c_estudio_buscador');
-    buscador.value = 'torax'; buscador.listeners.input();
-    assert.equal(nodo('catalogo-filas').children.length, 1);
-    assert.equal(nodo('catalogo-filas').children[0].children[1].textContent, 'RADIOGRAFÍA DE TÓRAX');
-    buscador.value = 'inexistente'; buscador.listeners.input();
-    assert.equal(nodo('catalogo-filas').children.length, 0);
+test('el catálogo empieza cerrado y al enfocarlo anuncia que está desplegado', () => {
+    const nodo = prepararDOM(); iniciarCatalogo(catalogoEstudios, () => {});
+    assert.equal(nodo('c_estudio_buscador').attributes['aria-expanded'], 'false');
+    assert.equal(nodo('catalogo-panel').hasAttribute('inert'), true);
+    nodo('c_estudio_buscador').listeners.focus();
+    assert.equal(nodo('c_estudio_buscador').attributes['aria-expanded'], 'true');
+    assert.equal(nodo('catalogo-panel').hasAttribute('inert'), false);
+});
+
+test('buscar filtra opciones y comunica la ausencia de coincidencias', () => {
+    const nodo = prepararDOM(); iniciarCatalogo(catalogoEstudios, () => {});
+    buscar(nodo, 'torax');
+    assert.equal(nodo('catalogo-opciones').children.length, 1);
+    assert.equal(nodo('catalogo-opciones').children[0].children[1].textContent, 'RADIOGRAFÍA DE TÓRAX');
+    buscar(nodo, 'inexistente');
+    assert.equal(nodo('catalogo-opciones').children.length, 0);
     assert.equal(nodo('catalogo-vacio').hidden, false);
+    assert.equal(nodo('catalogo-resultados').textContent, '0 servicios disponibles');
 });
 
-test('Enter agrega una coincidencia sin acentos y evita enviar el formulario de cobro', () => {
-    const nodo = prepararDOM();
-    let agregado = null, prevenido = false;
+test('Enter agrega la coincidencia y cierra sin enviar el cobro', () => {
+    const nodo = prepararDOM(); let agregado;
     iniciarCatalogo(catalogoEstudios, () => { agregado = nodo('c_estudio_buscador').value; });
-    nodo('c_estudio_buscador').value = 'torax';
-    nodo('c_estudio_buscador').listeners.keydown({ key: 'Enter', preventDefault() { prevenido = true; } });
+    buscar(nodo, 'torax');
+    assert.equal(tecla(nodo, 'Enter'), true);
     assert.equal(agregado, 'RADIOGRAFÍA DE TÓRAX');
-    assert.equal(prevenido, true);
+    assert.equal(nodo('c_estudio_buscador').attributes['aria-expanded'], 'false');
 });
 
-test('el botón de una fila agrega exactamente ese servicio', () => {
-    const nodo = prepararDOM();
-    let agregado;
+test('un clic agrega exactamente el servicio elegido y conserva el foco', () => {
+    const nodo = prepararDOM(); let agregado;
     iniciarCatalogo(catalogoEstudios, () => { agregado = nodo('c_estudio_buscador').value; });
-    const fila = nodo('catalogo-filas').children[3];
-    fila.children[3].children[0].listeners.click();
+    nodo('catalogo-opciones').children[3].listeners.click();
     assert.equal(agregado, 'ULTRASONIDO ABDOMINAL');
+    assert.equal(document.activeElement, nodo('c_estudio_buscador'));
+});
+
+test('200 servicios se recorren con flechas y la opción activa se desplaza a la vista', () => {
+    const servicios = Array.from({ length: 200 }, (_, i) => ({ id: i + 1, nombre: `SERVICIO ${i + 1}`, precio: 100 }));
+    const nodo = prepararDOM(); let agregado;
+    iniciarCatalogo(servicios, () => { agregado = nodo('c_estudio_buscador').value; });
+    assert.equal(nodo('catalogo-opciones').children.length, 200);
+    tecla(nodo, 'ArrowUp');
+    assert.equal(nodo('c_estudio_buscador').attributes['aria-activedescendant'], 'servicio-opcion-200');
+    assert.equal(nodo('catalogo-opciones').children[199].desplazado, true);
+    tecla(nodo, 'ArrowDown');
+    tecla(nodo, 'Enter');
+    assert.equal(agregado, 'SERVICIO 200');
+});
+
+test('Escape y Tab cierran sin borrar lo escrito ni agregar un servicio', () => {
+    const nodo = prepararDOM(); let agregados = 0;
+    iniciarCatalogo(catalogoEstudios, () => agregados++);
+    buscar(nodo, 'consulta'); tecla(nodo, 'Escape');
+    assert.equal(nodo('c_estudio_buscador').value, 'consulta');
+    assert.equal(nodo('c_estudio_buscador').attributes['aria-expanded'], 'false');
+    assert.equal(nodo('c_estudio_buscador').hasAttribute('aria-activedescendant'), false);
+    nodo('c_estudio_buscador').listeners.focus(); tecla(nodo, 'Tab');
+    assert.equal(nodo('c_estudio_buscador').attributes['aria-expanded'], 'false');
+    assert.equal(agregados, 0);
+});
+
+test('Enter sin selección o sin coincidencias nunca agrega ni envía el formulario', () => {
+    const nodo = prepararDOM(); let agregados = 0;
+    iniciarCatalogo(catalogoEstudios, () => agregados++);
+    assert.equal(tecla(nodo, 'Enter'), true);
+    buscar(nodo, 'inexistente'); tecla(nodo, 'ArrowDown'); tecla(nodo, 'Enter');
+    assert.equal(agregados, 0);
+});
+
+test('el control de despliegue alterna y pulsar fuera lo cierra', () => {
+    const nodo = prepararDOM(); iniciarCatalogo(catalogoEstudios, () => {});
+    nodo('alternar-catalogo').listeners.click();
+    assert.equal(nodo('c_estudio_buscador').attributes['aria-expanded'], 'true');
+    nodo('alternar-catalogo').listeners.click();
+    assert.equal(nodo('c_estudio_buscador').attributes['aria-expanded'], 'false');
+    nodo('alternar-catalogo').listeners.click();
+    document.listeners.pointerdown({ target: new Elemento() });
+    assert.equal(nodo('c_estudio_buscador').attributes['aria-expanded'], 'false');
 });
 
 test('el panel mueve el foco, aísla el fondo y al cerrar devuelve el foco', () => {

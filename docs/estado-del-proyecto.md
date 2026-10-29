@@ -2,35 +2,35 @@
 
 ## Entrega de interfaz cobalto
 
-- Se conserva sin modificación el archivo original `src/vistas/akesitooo.png`.
+- Se conserva sin modificación el archivo original `src/vistas/akesitooo.png`. La pantalla usa una versión con fondo transparente guardada por separado en `src/vistas/akesitooo-transparente.png`.
 - Caja organizada en ficha de paciente, catálogo y resumen. La navegación solo muestra destinos existentes: caja y corte diario.
 - Catálogo único para pantalla y reportes, conservando precios e identificadores existentes.
-- Búsqueda sin acentos, estado sin coincidencias, selección por botón y Enter sin enviar accidentalmente el cobro.
+- Catálogo desplegable con búsqueda sin acentos por nombre o código, precio visible y lista con altura acotada y desplazamiento. Selección por clic o flechas y Enter; Escape, Tab y clic fuera cierran la lista sin borrar la búsqueda.
 - Campos asociados a sus etiquetas, foco visible, nombre accesible de las acciones y mensajes de confirmación para tecnologías de asistencia.
 - Retiro en panel lateral con Escape, recorrido Tab/Shift+Tab, aislamiento del fondo y devolución del foco al cerrar.
 - Transiciones de 160–200 ms y preferencia de movimiento reducido. El catálogo y los movimientos no requieren conexión a recursos visuales externos.
 - Corte diario con el mismo lenguaje visual. Impresión separada en su propia hoja de estilos.
-- Ajustes de composición declarados para pantallas amplias y estrechas. La revisión renderizada sigue pendiente.
+- Composición inspeccionada en Electron en una ventana amplia y otra estrecha, incluyendo el desplegable abierto y el estado sin coincidencias.
 
 ## Validación realizada
 
 - Compilación TypeScript correcta.
-- Ocho pruebas automáticas aprobadas mediante `npm test`: búsqueda sin acentos, códigos y ausencia de resultados, filtrado de filas, Enter, selección exacta, apertura/cierre del panel, Escape y recorrido de teclado.
+- Trece pruebas automáticas aprobadas mediante `npm test`: búsqueda sin acentos y códigos, ausencia de resultados, estados del desplegable, selección por clic/Enter, navegación de 200 servicios ficticios, cierre con Escape/Tab/clic fuera y recorrido de teclado del panel.
 - Inspección estructural del HTML: identificadores únicos, campos referidos por los dos módulos presentes, etiquetas asociadas y tipos explícitos de botón.
 - `git diff --check` sin errores.
 - El hash SHA-256 de la base local se mantuvo sin cambios durante el trabajo. No se crearon ventas ni pacientes para verificar la interfaz.
-- El logo y los módulos de arranque y base de datos no se modificaron.
+- El logo original y los módulos de arranque y base de datos no se modificaron. La nueva versión transparente se guarda como un recurso independiente.
 
 ### Limitaciones de la verificación
 
-El navegador disponible rechazó abrir archivos locales. Al intentar iniciar el proyecto con el ejecutable instalado, Electron terminó con SIGABRT. La apertura por el lanzador del sistema también falló con `kLSNoExecutableErr`; la apertura auxiliar de Electron no inició el proyecto. No se completaron capturas, interacción renderizada ni verificación visual de contraste/desbordamiento.
+En la entrega inicial, el navegador rechazó archivos locales y el arranque desde el entorno automatizado terminó con SIGABRT y `kLSNoExecutableErr`. El 29 de octubre se encontró el POS abierto en la sesión gráfica del usuario y se pudo recargar e inspeccionar mediante controles nativos. Se revisaron el logo transparente, el catálogo abierto/cerrado, la búsqueda sin acentos, la selección con Enter, la eliminación del ticket y el estado sin coincidencias; se tomaron capturas en ventana amplia y estrecha. No se realizó una auditoría completa de contraste ni de tecnologías de asistencia.
 
-Las pruebas DOM son simulaciones de eventos, no pruebas completas de Electron. No se verificaron ventas reales, impresión térmica ni instaladores en Windows, macOS o Linux. No afirmar compatibilidad verificada de distribución hasta hacer esas pruebas.
+Las pruebas DOM son simulaciones complementadas por el recorrido nativo anterior. La navegación de 200 servicios ficticios se verificó automáticamente. No se verificaron ventas reales, impresión térmica ni instaladores en Windows, macOS o Linux. No afirmar compatibilidad verificada de distribución hasta hacer esas pruebas.
 
 ## Revisar en el equipo de uso
 
 1. Iniciar con `npm start` desde la carpeta del proyecto y comprobar caja en una ventana amplia y otra estrecha.
-2. Buscar “torax”, agregar un servicio, quitarlo y comprobar total, foco y mensajes. No es necesario guardar una venta para estas comprobaciones.
+2. Abrir el catálogo, buscar “torax” o “003”, elegir con flechas y Enter, comprobar cierre con Escape/clic fuera, quitar el servicio y revisar total, foco y mensajes. No es necesario guardar una venta para estas comprobaciones.
 3. Abrir retiro, recorrer los campos con teclado, cerrar con Escape y comprobar que se conserva la captura.
 4. Consultar corte y probar impresión con datos ficticios en una copia de prueba de la base.
 5. Comprobar preferencia de movimiento reducido, zoom, nombres largos y listas extensas.

@@ -1,7 +1,7 @@
 .contenedor-app { display: flex; min-height: 100vh; }
 .barra-lateral { width: 176px; flex-shrink: 0; background: var(--tinta); color: white; position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; }
 .marca { padding: 26px 22px; text-align: center; }
-.logo { display: block; width: 116px; max-width: 100%; height: auto; padding: 6px; margin: 0 auto 8px; background: white; border-radius: var(--radio); }
+.logo { display: block; width: 116px; max-width: 100%; height: auto; padding: 6px; margin: 0 auto 8px; background: transparent; border-radius: var(--radio); }
 .leyenda { font-size: 11px; letter-spacing: .08em; color: #c1c5d6; }
 .menu { display: flex; flex-direction: column; gap: 8px; padding: 18px 0; }
 .btn-menu { min-height: 56px; width: 100%; display: flex; align-items: center; gap: 12px; padding: 12px 18px; border: 0; border-radius: 0; background: transparent; color: #e1e3ee; text-align: left; transition: background-color var(--rapido); }
@@ -36,8 +36,6 @@
 .cabecera-seccion h2 { font-size: 27px; margin-bottom: 5px; }
 .cabecera-seccion p { color: var(--secundario); font-size: 12px; }
 .indice { color: var(--secundario); font: 12px monospace; padding-top: 8px; white-space: nowrap; }
-.busqueda-servicios { display: flex; gap: 10px; margin: 6px 0 16px; }
-.busqueda-servicios input { flex: 1; }
 .ayuda-catalogo { font-size: 12px; color: var(--secundario); margin: 12px 0 0; }
 .datos-venta { margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--borde); }
 .resumen-ticket { position: sticky; top: 20px; min-width: 0; padding: 22px; border: 1px solid var(--tinta); border-radius: var(--radio); background: var(--superficie); box-shadow: 5px 5px 0 var(--tinta); }
@@ -113,11 +111,38 @@
   .etiqueta { font-size: 10px; padding: 5px 8px; }
   .ficha-paciente { padding: 10px 12px 14px; }
   .datos-adicionales .grupo-fila, .datos-venta { flex-direction: column; }
-  .tabla-catalogo th:first-child, .tabla-catalogo td:first-child { display: none; }
-  .tabla-catalogo td, .tabla-catalogo th { padding: 10px 6px; }
-  .tabla-catalogo { font-size: 12px; }
-  .tabla-catalogo td:nth-child(2) { overflow-wrap: anywhere; }
   .resumen-corte { grid-template-columns: 1fr; }
   .resumen-corte > div + div { border-left: 0; border-top: 1px solid var(--borde); }
   .modal-contenido { padding: 24px 18px; }
+}
+
+/* Desplegable en el flujo de la página: no cubre los campos ni el resumen. */
+.selector-servicios { margin-top: 6px; }
+.selector-servicios > label { display: block; margin-bottom: 6px; }
+.control-catalogo { display: flex; border: 1px solid #8d909d; border-radius: var(--radio); background: var(--superficie); }
+.control-catalogo:focus-within { outline: 3px solid var(--cobalto); outline-offset: 3px; }
+.control-catalogo input { border: 0; background: transparent; flex: 1; }
+.control-catalogo input:focus-visible { outline: 0; }
+#alternar-catalogo { min-width: 48px; border: 0; border-left: 1px solid var(--borde); background: transparent; color: var(--cobalto); font-size: 24px; }
+#alternar-catalogo:hover { background: var(--cobalto-suave); }
+#alternar-catalogo span { display: inline-block; transition: transform 200ms var(--curva); }
+.abierto #alternar-catalogo span { transform: rotate(180deg); }
+.catalogo-panel { display: grid; grid-template-rows: 0fr; opacity: 0; visibility: hidden; transition: grid-template-rows 220ms var(--curva), opacity 180ms var(--curva), visibility 0s 220ms; }
+.abierto .catalogo-panel { grid-template-rows: 1fr; opacity: 1; visibility: visible; transition-delay: 0s; }
+.catalogo-panel-interior { overflow: hidden; min-height: 0; }
+.catalogo-lista-cabecera { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 4px 12px; padding: 12px 10px 8px; font-size: 11px; color: var(--secundario); }
+#catalogo-opciones { max-height: 360px; overflow-y: auto; overscroll-behavior: contain; border: 1px solid var(--borde); border-radius: var(--radio); background: var(--superficie); }
+#catalogo-opciones:empty { display: none; }
+.opcion-servicio { display: grid; grid-template-columns: 32px minmax(0,1fr) auto; gap: 10px; align-items: center; min-height: 52px; padding: 10px; border-bottom: 1px solid var(--borde); cursor: pointer; transition: background-color 120ms; }
+.opcion-servicio:last-child { border-bottom: 0; }
+.opcion-servicio:hover, .opcion-servicio[aria-selected='true'] { background: var(--cobalto-suave); box-shadow: inset 3px 0 var(--cobalto); }
+.codigo-servicio { font: 11px monospace; color: var(--secundario); }
+.nombre-opcion { font-size: 12px; overflow-wrap: anywhere; }
+.precio-opcion { font-size: 12px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.total.actualizada { animation: total-actualizado 240ms var(--curva); }
+@keyframes total-actualizado { 0%, 100% { background: transparent; } 35% { background: var(--cobalto-suave); } }
+@media (max-width: 600px) {
+  .opcion-servicio { grid-template-columns: minmax(0,1fr) auto; gap: 8px; }
+  .codigo-servicio { display: none; }
+  #catalogo-opciones { max-height: 320px; }
 }

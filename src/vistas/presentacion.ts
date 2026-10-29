@@ -6,65 +6,127 @@ const moneda = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MX
 export function filtrarServicios(servicios: ServicioCatalogo[], consulta: string): ServicioCatalogo[] {
     const normalizar = (valor: string) => valor.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
     const filtro = normalizar(consulta);
-    return servicios.filter(servicio => normalizar(`${servicio.id} ${servicio.nombre}`).includes(filtro));
+    return servicios.filter(servicio => normalizar(`${String(servicio.id).padStart(3, '0')} ${servicio.id} ${servicio.nombre}`).includes(filtro));
 }
 
-/** Solo presentación: no calcula cobros ni accede a la base de datos. */
+/** Combobox local: el foco permanece en el buscador y el listado conserva su altura acotada. */
 export function iniciarCatalogo(servicios: ServicioCatalogo[], agregar: () => void): void {
     const buscador = document.getElementById('c_estudio_buscador') as HTMLInputElement;
-    const filas = document.getElementById('catalogo-filas')!;
-    const lista = document.getElementById('lista-estudios')!;
-    for (const servicio of servicios) {
-        const opcion = document.createElement('option');
-        opcion.value = servicio.nombre;
-        lista.appendChild(opcion);
-    }
-    const renderizar = () => {
-        filas.replaceChildren();
-        const visibles = filtrarServicios(servicios, buscador.value);
-        document.getElementById('catalogo-vacio')!.hidden = visibles.length > 0;
-        for (const servicio of visibles) {
-            const fila = document.createElement('tr');
-            for (const [indice, texto] of [String(servicio.id).padStart(3, '0'), servicio.nombre, moneda.format(servicio.precio)].entries()) {
-                const celda = document.createElement('td');
-                celda.textContent = texto;
-                if (indice === 2) celda.className = 'numero';
-                fila.appendChild(celda);
-            }
-            const accion = document.createElement('td');
-            const boton = document.createElement('button');
-            boton.type = 'button';
-            boton.className = 'agregar-servicio';
-            boton.textContent = '+';
-            boton.setAttribute('aria-label', `Agregar ${servicio.nombre}`);
-            boton.addEventListener('click', () => {
-                buscador.value = servicio.nombre;
-                agregar();
-                // El botón se recrea al filtrar: conservar el foco en el mismo servicio.
-                const indice = servicios.indexOf(servicio);
-                (filas.children[indice]?.querySelector('button') as HTMLButtonElement)?.focus();
-            });
-            accion.appendChild(boton);
-            fila.appendChild(accion);
-            filas.appendChild(fila);
+    const contenedor = document.getElementById('selector-servicios')!;
+    const panel = document.getElementById('catalogo-panel')!;
+    const lista = document.getElementById('catalogo-opciones')!;
+    const alternar = document.getElementById('alternar-catalogo')!;
+    const resultados = document.getElementById('catalogo-resultados')!;
+    let visibles: ServicioCatalogo[] = [];
+    let abierto = false;
+    let activo = -1;
+
+    const seleccionarActivo = (indice: number, desplazar = false) => {
+        activo = indice;
+        Array.from(lista.children).forEach((opcion, posicion) => {
+            opcion.setAttribute('aria-selected', String(posicion === activo));
+        });
+        const opcion = lista.children[activo] as HTMLElement | undefined;
+        if (opcion && abierto) {
+            buscador.setAttribute('aria-activedescendant', opcion.id);
+            if (desplazar) opcion.scrollIntoView({ block: 'nearest' });
+        } else {
+            buscador.removeAttribute('aria-activedescendant');
         }
     };
-    buscador.addEventListener('input', renderizar);
-    buscador.addEventListener('keydown', evento => {
-        if (evento.key === 'Enter') {
-            evento.preventDefault();
-            const coincidencias = filtrarServicios(servicios, buscador.value);
-            if (coincidencias.length === 1) buscador.value = coincidencias[0].nombre;
-            agregar();
-            buscador.focus();
+    const mostrar = (valor: boolean) => {
+        abierto = valor;
+        contenedor.classList.toggle('abierto', valor);
+        buscador.setAttribute('aria-expanded', String(valor));
+        alternar.setAttribute('aria-expanded', String(valor));
+        alternar.setAttribute('aria-label', valor ? 'Cerrar catálogo de servicios' : 'Mostrar catálogo de servicios');
+        panel.setAttribute('aria-hidden', String(!valor));
+        if (valor) panel.removeAttribute('inert');
+        else panel.setAttribute('inert', '');
+        seleccionarActivo(valor ? activo : -1);
+    };
+    const elegir = (servicio: ServicioCatalogo) => {
+        buscador.value = servicio.nombre;
+        agregar();
+        // La integración existente limpia la búsqueda y anuncia el servicio agregado.
+        buscador.focus();
+        // focus puede abrir la lista; la selección siempre termina cerrándola.
+        mostrar(false);
+    };
+    const renderizar = () => {
+        visibles = filtrarServicios(servicios, buscador.value);
+        lista.replaceChildren();
+        document.getElementById('catalogo-vacio')!.hidden = visibles.length > 0;
+        resultados.textContent = `${visibles.length} ${visibles.length === 1 ? 'servicio disponible' : 'servicios disponibles'}`;
+        for (const servicio of visibles) {
+            const opcion = document.createElement('div');
+            opcion.id = `servicio-opcion-${servicio.id}`;
+            opcion.className = 'opcion-servicio';
+            opcion.setAttribute('role', 'option');
+            opcion.setAttribute('aria-selected', 'false');
+            const codigo = document.createElement('span');
+            codigo.className = 'codigo-servicio';
+            codigo.textContent = String(servicio.id).padStart(3, '0');
+            const nombre = document.createElement('span');
+            nombre.className = 'nombre-opcion';
+            nombre.textContent = servicio.nombre;
+            const precio = document.createElement('strong');
+            precio.className = 'precio-opcion';
+            precio.textContent = moneda.format(servicio.precio);
+            opcion.append(codigo, nombre, precio);
+            opcion.addEventListener('pointerdown', evento => evento.preventDefault());
+            opcion.addEventListener('click', () => elegir(servicio));
+            lista.appendChild(opcion);
         }
+        seleccionarActivo(buscador.value.trim() && visibles.length ? 0 : -1);
+    };
+    buscador.addEventListener('focus', () => mostrar(true));
+    buscador.addEventListener('click', () => mostrar(true));
+    buscador.addEventListener('input', () => { renderizar(); mostrar(true); });
+    buscador.addEventListener('keydown', evento => {
+        if (evento.isComposing) return;
+        if (evento.key === 'ArrowDown' || evento.key === 'ArrowUp') {
+            evento.preventDefault();
+            if (!abierto) mostrar(true);
+            if (!visibles.length) return;
+            const siguiente = evento.key === 'ArrowDown'
+                ? Math.min(activo + 1, visibles.length - 1)
+                : activo < 0 ? visibles.length - 1 : Math.max(0, activo - 1);
+            seleccionarActivo(siguiente, true);
+        } else if (evento.key === 'Enter') {
+            evento.preventDefault();
+            if (abierto && visibles[activo]) elegir(visibles[activo]);
+        } else if (evento.key === 'Escape') {
+            evento.preventDefault(); mostrar(false);
+        } else if (evento.key === 'Tab') mostrar(false);
+    });
+    alternar.addEventListener('pointerdown', evento => evento.preventDefault());
+    alternar.addEventListener('click', () => {
+        const abrir = !abierto;
+        if (abrir) buscador.focus();
+        mostrar(abrir);
+    });
+    contenedor.addEventListener('focusout', evento => {
+        if (!contenedor.contains(evento.relatedTarget as Node | null)) mostrar(false);
+    });
+    document.addEventListener('pointerdown', evento => {
+        if (!contenedor.contains(evento.target as Node)) mostrar(false);
     });
     document.getElementById('formulario-cobro')!.addEventListener('reset', () => {
-        // El reset nativo actualiza los valores después de emitir el evento.
-        queueMicrotask(renderizar);
+        queueMicrotask(() => { renderizar(); mostrar(false); });
     });
-    document.addEventListener('catalogo:restablecer', renderizar);
+    document.addEventListener('catalogo:restablecer', () => { renderizar(); mostrar(false); });
     renderizar();
+    mostrar(false);
+}
+
+/** Énfasis breve del total; no mueve cifras ni ignora la preferencia del equipo. */
+export function resaltarTotal(): void {
+    const total = document.querySelector('.total') as HTMLElement;
+    if (!total || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    total.classList.remove('actualizada');
+    void total.offsetWidth;
+    total.classList.add('actualizada');
 }
 
 export function anunciar(mensaje: string): void {

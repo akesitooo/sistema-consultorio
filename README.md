@@ -4,7 +4,7 @@ Prototipo de escritorio para cobrar consultas y estudios, registrar pacientes y 
 
 ## Estado actual
 
-La caja utiliza una identidad editorial cobalto: fondo papel, logo original, ficha de paciente, catálogo con búsqueda y resumen del ticket. El panel de retiros incluye recorrido por teclado y las transiciones respetan la preferencia de reducir movimiento.
+La caja utiliza una identidad editorial cobalto: fondo papel, logo original, ficha de paciente, catálogo desplegable con búsqueda por nombre o código y resumen del ticket. El logo tiene fondo transparente. El panel de retiros incluye recorrido por teclado y las transiciones respetan la preferencia de reducir movimiento.
 
 Actualmente funciona con una base local. Las sucursales conectadas, la sincronización sin internet, los usuarios autenticados y el panel de administración forman parte del trabajo pendiente; no están implementados en esta versión. Consulta [el alcance y la validación](docs/estado-del-proyecto.md).
 
@@ -26,7 +26,7 @@ npm run build
 npm test
 ```
 
-`npm test` compila y ejecuta las pruebas de búsqueda, selección y accesibilidad del panel con un adaptador DOM en memoria. No modifica SQLite. No sustituye las pruebas de impresión ni la inspección visual de Electron.
+`npm test` compila y ejecuta las pruebas de búsqueda, selección y accesibilidad con un adaptador DOM en memoria, incluido un catálogo ficticio de 200 servicios. No modifica SQLite. No sustituye las pruebas de impresión ni la inspección visual de Electron.
 
 ## Organización
 

@@ -118,6 +118,7 @@ function agregarEstudioCarrito() {
         renderizarCarrito();
         calcularVenta();
         (0, presentacion_1.anunciar)(`${estudioEncontrado.nombre} agregado al ticket.`);
+        (0, presentacion_1.resaltarTotal)();
         document.dispatchEvent(new Event('catalogo:restablecer'));
     }
     else {

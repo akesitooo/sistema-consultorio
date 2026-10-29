@@ -3,7 +3,7 @@
 import { baseDeDatos } from '../base_de_datos/conexion';
 
 import { catalogoEstudios } from '../modelos/catalogo';
-import { anunciar, iniciarCatalogo, iniciarPanelEgreso, abrirPanelEgreso, cerrarPanelEgreso } from './presentacion';
+import { anunciar, resaltarTotal, iniciarCatalogo, iniciarPanelEgreso, abrirPanelEgreso, cerrarPanelEgreso } from './presentacion';
 
 
 let pacientesMemoria: any[] = [];
@@ -136,6 +136,7 @@ function agregarEstudioCarrito(): void {
         calcularVenta();
         
         anunciar(`${estudioEncontrado.nombre} agregado al ticket.`);
+        resaltarTotal();
         document.dispatchEvent(new Event('catalogo:restablecer'));
     } else {
         alert(`⚠️ Estudio no encontrado: "${nombreBuscado}"\nVerifica la lista desplegable.`);

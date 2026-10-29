@@ -11,7 +11,7 @@
     <div class="contenedor-app">
         <aside class="barra-lateral">
             <div class="marca">
-                <img src="./akesitooo.png" alt="Logo original de akesitooo: figura roja con un ojo y manos" class="logo">
+                <img src="./akesitooo-transparente.png" alt="Logo original de akesitooo: figura roja con un ojo y manos" class="logo">
                 <span class="leyenda">by akesitooo</span>
             </div>
             <nav class="menu" aria-label="Navegación principal">
@@ -42,10 +42,21 @@
                         <div class="zona-servicios">
                             <section class="catalogo" aria-labelledby="titulo-servicios">
                                 <div class="cabecera-seccion"><div><h2 id="titulo-servicios">Servicios y estudios</h2><p>Busca por nombre y agrega lo que necesita el paciente.</p></div><span class="indice" aria-hidden="true">/ 01</span></div>
-                                <div class="busqueda-servicios"><label class="solo-lectores" for="c_estudio_buscador">Buscar consulta o estudio</label><input type="search" id="c_estudio_buscador" list="lista-estudios" placeholder="Buscar consulta o estudio…" autocomplete="off" aria-controls="catalogo-filas"><datalist id="lista-estudios"></datalist><button type="button" class="btn-secundario" onclick="agregarEstudioCarrito()">Agregar</button></div>
-                                <div class="tabla-contenedor"><table class="tabla-catalogo"><caption class="solo-lectores">Catálogo de servicios disponibles</caption><thead><tr><th scope="col">Código</th><th scope="col">Servicio</th><th scope="col" class="numero">Precio</th><th scope="col"><span class="solo-lectores">Acción</span></th></tr></thead><tbody id="catalogo-filas"></tbody></table></div>
-                                <p id="catalogo-vacio" class="vacio" hidden>No encontramos ese servicio. Prueba con otra palabra.</p>
-                                <p class="ayuda-catalogo">Puedes agregar más de un servicio al mismo ticket.</p>
+                                <div class="selector-servicios" id="selector-servicios">
+                                    <label for="c_estudio_buscador">Buscar o desplegar el catálogo</label>
+                                    <div class="control-catalogo">
+                                        <input type="text" id="c_estudio_buscador" role="combobox" aria-autocomplete="list" aria-haspopup="listbox" aria-expanded="false" aria-controls="catalogo-opciones" aria-describedby="ayuda-catalogo" placeholder="Escribe un nombre o código…" autocomplete="off" spellcheck="false">
+                                        <button type="button" id="alternar-catalogo" aria-label="Mostrar catálogo de servicios" aria-expanded="false" aria-controls="catalogo-panel"><span aria-hidden="true">⌄</span></button>
+                                    </div>
+                                    <div class="catalogo-panel" id="catalogo-panel" aria-hidden="true" inert>
+                                        <div class="catalogo-panel-interior">
+                                            <div class="catalogo-lista-cabecera"><span>Elige para agregar al ticket</span><span id="catalogo-resultados" role="status" aria-live="polite" aria-atomic="true"></span></div>
+                                            <div id="catalogo-opciones" role="listbox" aria-label="Consultas y estudios disponibles"></div>
+                                            <p id="catalogo-vacio" class="vacio" hidden>No encontramos ese servicio. Prueba con otra palabra.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p id="ayuda-catalogo" class="ayuda-catalogo">Busca sin acentos. Usa ↑ ↓ y Enter para agregar; Escape para cerrar.</p>
                             </section>
                             <div class="datos-venta grupo-fila"><div class="grupo-input"><label for="c_doctor">Médico solicitante *</label><input type="text" id="c_doctor" required placeholder="Nombre del médico"></div><div class="grupo-input"><label for="c_vendedor">Recepcionista <span>(opcional)</span></label><input type="text" id="c_vendedor" placeholder="Quién atiende esta venta"></div></div>
                             <p id="aviso-interfaz" class="aviso-interfaz" role="status" aria-live="polite" aria-atomic="true"></p>
